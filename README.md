@@ -1,5 +1,7 @@
 # Progress Wrapper
 
+![Demo Progress Application](https://raw.githubusercontent.com/Crystalix007/progress-wrapper/assets/progress-demo-screenshot.png)
+
 ## What?
 
 This just wraps any commandline application capable of spewing out `Progress:
