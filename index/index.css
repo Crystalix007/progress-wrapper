@@ -1,0 +1,34 @@
+.grid-wrapper {
+	display: grid;
+	grid-template-rows: 20% auto;
+	grid-template-columns: 50% 50%;
+
+  column-gap: 1em;
+  row-gap: 1em;
+
+	padding: 2em 2em;
+}
+
+.progress-section {
+	grid-column-start: 1;
+	grid-column-end: 3;
+
+	grid-row-start: 1;
+	grid-row-end: 2;
+}
+
+.stdout-section {
+	grid-column-start: 1;
+	grid-column-end: 2;
+
+	grid-row-start: 2;
+	grid-row-end: 3;
+}
+
+.stderr-section {
+	grid-column-start: 2;
+	grid-column-end: 3;
+
+	grid-row-start: 2;
+	grid-row-end: 3;
+}

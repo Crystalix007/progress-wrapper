@@ -11,5 +11,9 @@
     "progress"
   ],
   "author": "Michael Kuc",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "minimist": "^1.2.5",
+    "ws": "^7.3.1"
+  }
 }
