@@ -13,8 +13,9 @@ const port = argv.port || 3000;
 const wsPort = argv.wsPort || (port + 1);
 const baseDirectory = __dirname + '/index';
 
-const command = argv._;
 const shell = process.env.SHELL || 'sh';
+const command = argv._;
+const progressPrefix = argv.prefix ?? 'Progress:\\s+';
 
 if (command === []) {
 	console.error('No command specified');
@@ -71,7 +72,7 @@ server.listen(port, hostname, () => {
 let progress = 0.0;
 
 const worker = spawn(shell, [ '-c', command.join(' ') ]);
-const progressRE = /^Progress: (100|[1-9]?[0-9](?:\.(?:\d+)?)?|00?)%$/;
+const progressRE = new RegExp(`${progressPrefix}(100|[1-9]?[0-9](?:\\.(?:\\d+)?)?|00?(?:\\.\\d+))%$`);
 
 const stdout = [];
 const stderr = [];
@@ -118,6 +119,10 @@ worker.stderr.on('data', (data) => {
 			console.error(line);
 		}
 	});
+});
+
+process.stdin.on('data', (data) => {
+	worker.stdin.write(data);
 });
 
 wss.on('connection', (ws, req) => {
