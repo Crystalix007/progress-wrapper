@@ -1,7 +1,7 @@
 function onWSInit(port) {
-	const progressSock = new WebSocket(`ws://${location.hostname}:${port}/progress`);
-	const stderrSock = new WebSocket(`ws://${location.hostname}:${port}/stderr`);
-	const stdoutSock = new WebSocket(`ws://${location.hostname}:${port}/stdout`);
+	const progressSock = new ReconnectingWebSocket(`ws://${location.hostname}:${port}/progress`);
+	let stderrSock = null;
+	let stdoutSock = null;
 	const refreshInterval = 2000;
 
 	function escapeHtml(unsafe) {
@@ -14,24 +14,37 @@ function onWSInit(port) {
 			.replace(/\n/g, "<br />");
 	}
 
-	stderrSock.onopen = () => {
-		stderrSock.send('ping');
-	};
-
-	stderrSock.onmessage = (event) => {
-		document.getElementById('stderr').innerHTML = escapeHtml(event.data);
-	};
-
-	stdoutSock.onopen = () => {
-		stdoutSock.send('ping');
-	};
-
-	stdoutSock.onmessage = (event) => {
-		document.getElementById('stdout').innerHTML = escapeHtml(event.data);
-	};
-
 	progressSock.onopen = () => {
+		stderrSock = new WebSocket(`ws://${location.hostname}:${port}/stderr`);
+		stdoutSock = new WebSocket(`ws://${location.hostname}:${port}/stdout`);
+
+		window.setTimeout(updateData, refreshInterval);
 		progressSock.send('ping');
+
+		stderrSock.onopen = () => {
+			stderrSock.send('ping');
+		};
+
+		stderrSock.onmessage = (event) => {
+			document.getElementById('stderr').innerHTML = escapeHtml(event.data);
+		};
+
+		stdoutSock.onopen = () => {
+			stdoutSock.send('ping');
+		};
+
+		stdoutSock.onmessage = (event) => {
+			document.getElementById('stdout').innerHTML = escapeHtml(event.data);
+		};
+
+	};
+
+	progressSock.onclose = () => {
+		stderrSock?.close();
+		stdoutSock?.close();
+
+		stderrSock = null;
+		stdoutSock = null;
 	};
 
 	progressSock.onmessage = (event) => {
@@ -41,14 +54,15 @@ function onWSInit(port) {
 	};
 
 	function updateData() {
-		stderrSock.send('');
-		stdoutSock.send('');
-		progressSock.send('');
+		if (progressSock.readyState === WebSocket.CLOSED) {
+			return;
+		}
 
+		stderrSock?.send('');
+		stdoutSock?.send('');
+		progressSock.send('');
 		window.setTimeout(updateData, refreshInterval);
 	}
-
-	window.setTimeout(updateData, refreshInterval);
 }
 
 const wsPortReq = new XMLHttpRequest();
