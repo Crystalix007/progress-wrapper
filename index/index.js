@@ -74,4 +74,5 @@ wsPortReq.onreadystatechange = () => {
 };
 
 wsPortReq.open("GET", `http://${location.host}/ws_port`, true);
+wsPortReq.overrideMimeType('text/plain');
 wsPortReq.send(null);
